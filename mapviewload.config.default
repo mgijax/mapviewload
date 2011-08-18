@@ -1,0 +1,102 @@
+#format: sh
+
+#
+# Configuration file for miRBase load jobstream
+#
+# mapviewoad.config.default
+#
+
+#
+#  If the MGICONFIG environment variable does not have a local override,
+#  use the default "live" settings.
+#
+if [ "${MGICONFIG}" = "" ]
+then
+    MGICONFIG=/usr/local/mgi/live/mgiconfig
+    export MGICONFIG
+fi
+
+. ${MGICONFIG}/master.config.sh
+
+# directories
+
+FILEDIR=/data/loads/mapview/mapviewload
+INPUTDIR=${FILEDIR}/input
+LOGDIR=${FILEDIR}/logs
+RPTDIR=${FILEDIR}/reports
+ARCHIVEDIR=${FILEDIR}/archive
+OUTPUTDIR=${FILEDIR}/output
+export FILEDIR INPUTDIR LOGDIR RPTDIR ARCHIVEDIR OUTPUTDIR
+
+#  log files
+LOG_PROC=${LOGDIR}/mapviewload.proc.log
+LOG_DIAG=${LOGDIR}/mapviewload.diag.log
+LOG_CUR=${LOGDIR}/mapviewload.cur.log
+LOG_VAL=${LOGDIR}/mapviewload.val.log
+export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
+
+# job stream user
+JOBSTREAM=mapviewload
+export JOBSTREAM
+
+# input/output files
+MAPVIEWDIR=/data/downloads/mapview_human
+MAPVIEWGZ=seq_gene.md.gz
+MAPVIEW_FILE=${INPUTDIR}/seq_gene.md
+export MAPVIEWDIR MAPVIEWGZ MAPVIEW_FILE
+
+# discrepency reports
+MAPVIEWQC_NomenMisMatch=${RPTDIR}/NomenMisMatch.rpt
+MAPVIEWQC_ChrMisMatch=${RPTDIR}/ChrMisMatch.rpt
+export MAPVIEWQC_NomenMisMatch MAPVIEWQC_ChrMisMatch
+
+# coordload configuration values
+COORDLOADER_SH=${COORDLOAD}/bin/coordload.sh
+COORDLOADCONFIG=${MAPVIEWLOAD}/coordload.config
+COORDDATADIR=${INPUTDIR}
+export COORDLOADER_SH COORDLOADCONFIG COORDDATADIR
+
+# marker location cache configuration values
+LOCATIONCACHE_SH=${MRKCACHELOAD}/mrklocation.csh
+export LOCATIONCACHE_SH
+
+# data files
+
+COORD_FILE=human_coord.txt
+INPUT_COORD_FILE=${COORDDATADIR}/${COORD_FILE}
+export COORD_FILE
+export INPUT_COORD_FILE
+
+# bcp manager
+
+RADAR_BCP_AUTO_FLUSH=false
+RADAR_BCP_DROP_INDEXES=false
+RADAR_BCP_PREVENT_EXECUTE=false
+RADAR_BCP_RECORD_STAMPING=false
+RADAR_BCP_TRUNCATE_LOG=true
+RADAR_BCP_TRUNCATE_TABLE=false
+
+export RADAR_BCP_AUTO_FLUSH RADAR_BCP_DROP_INDEXES 
+export RADAR_BCP_PREVENT_EXECUTE RADAR_BCP_RECORD_STAMPING
+export RADAR_BCP_TRUNCATE_LOG RADAR_BCP_TRUNCATE_TABLE
+
+MGD_BCP_AUTO_FLUSH=false
+MGD_BCP_DROP_INDEXES=false
+MGD_BCP_PREVENT_EXECUTE=false
+MGD_BCP_RECORD_STAMPING=false
+MGD_BCP_TRUNCATE_LOG=true
+MGD_BCP_TRUNCATE_TABLE=false
+
+export MGD_BCP_AUTO_FLUSH MGD_BCP_DROP_INDEXES 
+export MGD_BCP_PREVENT_EXECUTE MGD_BCP_RECORD_STAMPING
+export MGD_BCP_TRUNCATE_LOG MGD_BCP_TRUNCATE_TABLE
+
+# mail
+
+MAIL_LOADNAME="NCBI MapView Data Load"
+export MAIL_LOADNAME
+
+# install directory
+INSTALLDIR=${MAPVIEWLOAD}
+export INSTALLDIR
+
