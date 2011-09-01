@@ -39,11 +39,11 @@ touch ${LOG}
 #
 #  Verify the argument(s) to the shell script.
 #
-#if [ $# -ne 1 ]
-#then
-#    echo ${Usage} | tee -a ${LOG}
-#    exit 1
-#fi
+if [ $# -ne 1 ]
+then
+    echo ${Usage} | tee -a ${LOG}
+    exit 1
+fi
 
 LOAD_CACHE=$1
 
@@ -117,21 +117,21 @@ preload ${OUTPUTDIR}
 cleanDir ${OUTPUTDIR} 
 
 # remove old files
-#rm -rf ${MAPFILE_NAME}
+rm -rf ${MAPFILE_NAME}
 
 # copy new file from /data/downloads and unzip
-#cd ${INPUTDIR}
-#cp ${MAPVIEWDIR}/${MAPVIEWGZ} ${INPUTDIR}
-#/usr/local/bin/gunzip -f ${MAPVIEWGZ} >> ${LOG_DIAG}
+cd ${INPUTDIR}
+cp ${MAPVIEWDIR}/${MAPVIEWGZ} ${INPUTDIR}
+/usr/local/bin/gunzip -f ${MAPVIEWGZ} >> ${LOG_DIAG}
 
 #
 # process the input file
 #
-#echo "\n`date`" >> ${LOG_DIAG} 
-#echo "Processing input file ${MAPFILE_NAME}" | tee -a ${LOG_DIAG}
-#${MAPVIEWLOAD}/bin/mapviewload.py | tee -a ${LOG_DIAG} ${LOG_PROC}
-#STAT=$?
-#checkStatus ${STAT} "${MAPVIEWLOAD}/bin/mapviewload.py"
+echo "\n`date`" >> ${LOG_DIAG} 
+echo "Processing input file ${MAPFILE_NAME}" | tee -a ${LOG_DIAG}
+${MAPVIEWLOAD}/bin/mapviewload.py | tee -a ${LOG_DIAG} ${LOG_PROC}
+STAT=$?
+checkStatus ${STAT} "${MAPVIEWLOAD}/bin/mapviewload.py"
 
 #
 # run the coordinate load
@@ -142,14 +142,14 @@ ${COORDLOADER_SH} ${CONFIG_LOAD} ${COORDLOADCONFIG}  >> ${LOG_DIAG}
 STAT=$?
 checkStatus ${STAT} "${COORDLOADER_SH}"
 
-#if [ ${LOAD_CACHE} = "true" ]
-#then
-#    echo "\n`date`" >> ${LOG_DIAG}
-#    echo "Running marker location cacheload"| tee -a ${LOG_DIAG}
-#    ${LOCATIONCACHE_SH} >> ${LOG_DIAG}
-#    STAT=$?
-#    checkStatus ${STAT} "${LOCATIONCACHE_SH}"
-#fi
+if [ ${LOAD_CACHE} = "true" ]
+then
+    echo "\n`date`" >> ${LOG_DIAG}
+    echo "Running marker location cacheload"| tee -a ${LOG_DIAG}
+    ${LOCATIONCACHE_SH} >> ${LOG_DIAG}
+    STAT=$?
+    checkStatus ${STAT} "${LOCATIONCACHE_SH}"
+fi
 
 #
 # Perform post-load tasks.

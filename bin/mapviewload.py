@@ -5,8 +5,12 @@
 #
 #  Purpose:
 #
-#      This script will use the records in the mapview input file to create
-#      output files that contain:
+#      Use the mapview input file ($MAPVIEW_FILE), an NCBI file
+#      that contains human coordinates, to generate a file for the 
+#      coordinate load product (coordload).
+#
+#      input: $MAPVIEW_FILE, NCBI file
+#      output: $INPUT_COORD_FILE, input file for coordindate load (coordload)
 #
 #  Usage:
 #
@@ -15,7 +19,7 @@
 #  Env Vars:
 #
 #      The following environment variables are set by the configuration
-#      file that is sourced by the wrapper script:
+#      file that is sourced by the wrapper script (mapviewload.config):
 #
 #          MAPVIEW_FILE
 #	   INPUT_COORD_FILE
@@ -47,8 +51,10 @@
 #        5) Strand (+ or - or null)
 #
 #      - Nomenclature Mismatch report
+# 	 if NCBI symbol do not match MGD symbol
 #
 #      - Chromosome Mismatch report
+# 	 if NCBI chromosome do not match MGD chromosome
 #
 #  Exit Codes:
 #
@@ -288,7 +294,7 @@ def getCoordinates():
 	    fpChrMisMatch.write(feature_id + '\t' + chromosome + '\t' + mgiChromosome + '\n')
 	    continue
 
-	# check if symbol values do not match
+	# check if NCBI symbol do not match the MGD symbol
 	# allow the load, but report the difference
 	mgiSymbol = mgiLookup[feature_id]['symbol']
 	if mgiSymbol != feature_name:
