@@ -10,7 +10,7 @@
 #      coordinate load product (coordload).
 #
 #      input: $MAPVIEW_FILE, NCBI file
-#      output: $INPUT_COORD_FILE, input file for coordindate load (coordload)
+#      output: $INPUT_PRECOORD_FILE, $INPUT_COORD_FILE, input file for coordindate load (coordload)
 #
 #  Usage:
 #
@@ -22,9 +22,11 @@
 #      file that is sourced by the wrapper script (mapviewload.config):
 #
 #          MAPVIEW_FILE
+#	   INPUT_PRECOORD_FILE
 #	   INPUT_COORD_FILE
 #	   MAPVIEWQC_NomenMisMatch
 #	   MAPVIEWQC_ChrMisMatch
+#	   MAPVIEWQC_MultipleCoords
 #
 #  Inputs:
 #
@@ -41,6 +43,10 @@
 #	 13) group_label = "GRChxxxx-Primary Assembly"
 #
 #  Outputs:
+#
+#      - Pre-Human Coordinate file ($INPUT_COORD_FILE)
+#	 This file is identifcal to the "final" file, except this file contains duplicates.
+#	 The duplciates are reported in MAPVIEWQC_MultipleCoords.
 #
 #      - Human Coordinate file ($INPUT_COORD_FILE)
 #        It has the following tab-delimited fields:
@@ -88,6 +94,8 @@ import db
 mapviewFile = None
 
 # INPUT_COORD_FILE
+# INPUT_PRECOORD_FILE
+precoordFile = None
 coordFile = None
 
 # MAPVIEWQC_NomenMisMatch
@@ -96,14 +104,21 @@ nomenMisMatchFile = None
 # MAPVIEWQC_ChrMisMatch
 chrMisMatchFile = None
 
+# MAPVIEWQC_MultipleCoords
+mulipleCoordsFile = None
+
 # file pointers
 fpMapview = None
 fpCoord = None
 fpNomenMisMatch = None
 fpChrMisMatch = None
+fpMultipleCoords = None
 
 # lookup of MGI Human data (EntrezGene id, symbol, chromsome)
 mgiLookup = {}
+
+# lookup of EG ids
+egLookup = []
 
 #
 # Purpose: Initialization
@@ -113,13 +128,15 @@ mgiLookup = {}
 # Throws: Nothing
 #
 def initialize():
-    global mapviewFile, coordFile, nomenMisMatchFile, chrMisMatchFile
-    global fpMapview, fpCoord, fpNomenMisMatch, fpChrMisMatch
+    global mapviewFile, precoordFile, coordFile, nomenMisMatchFile, chrMisMatchFile, multipleCoordsFile
+    global fpMapview, fpPreCoord, fpCoord, fpNomenMisMatch, fpChrMisMatch, fpMultipleCoords
 
     mapviewFile = os.getenv('MAPVIEW_FILE')
+    precoordFile = os.getenv('INPUT_PRECOORD_FILE')
     coordFile = os.getenv('INPUT_COORD_FILE')
     nomenMisMatchFile = os.getenv('MAPVIEWQC_NomenMisMatch')
     chrMisMatchFile = os.getenv('MAPVIEWQC_ChrMisMatch')
+    multipleCoordsFile = os.getenv('MAPVIEWQC_MultipleCoords')
 
     rc = 0
 
@@ -128,6 +145,10 @@ def initialize():
     #
     if not mapviewFile:
         print 'Environment variable not set: MAPVIEW_FILE'
+        rc = 1
+
+    if not precoordFile:
+        print 'Environment variable not set: INPUT_PRECOORD_FILE'
         rc = 1
 
     if not coordFile:
@@ -142,13 +163,19 @@ def initialize():
         print 'Environment variable not set: MAPVIEWQC_ChrMisMatch'
         rc = 1
 
+    if not multipleCoordsFile:
+        print 'Environment variable not set: MAPVIEWQC_MultipleCoords'
+        rc = 1
+
     #
     # Initialize file pointers.
     #
     fpMapview = None
+    fpPreCoord = None
     fpCoord = None
     fpNomenMisMatch = None
     fpChrMisMatch = None
+    fpMultipleCoords = None
 
     return rc
 
@@ -161,7 +188,7 @@ def initialize():
 # Throws: Nothing
 #
 def openFiles():
-    global fpMapview, fpCoord, fpNomenMisMatch, fpChrMisMatch
+    global fpMapview, fpPreCoord, fpCoord, fpNomenMisMatch, fpChrMisMatch, fpMultipleCoords
     global mgiLookup
 
     #
@@ -171,6 +198,15 @@ def openFiles():
         fpMapview = open(mapviewFile, 'r')
     except:
         print 'Cannot open file: ' + mapviewFile
+        return 1
+
+    #
+    # Open the pre-coordinate file.
+    #
+    try:
+        fpPreCoord = open(precoordFile, 'w')
+    except:
+        print 'Cannot open file: ' + precoordFile
         return 1
 
     #
@@ -198,6 +234,15 @@ def openFiles():
         fpChrMisMatch = open(chrMisMatchFile, 'w')
     except:
         print 'Cannot open file: ' + chrMisMatchFile
+        return 1
+
+    #
+    # Open the multiple coordinates file.
+    #
+    try:
+        fpMultipleCoords = open(multipleCoordsFile, 'w')
+    except:
+        print 'Cannot open file: ' + multipleCoordsFile
         return 1
 
     #
@@ -234,6 +279,9 @@ def closeFiles():
     if fpMapview:
         fpMapview.close()
 
+    if fpPreCoord:
+        fpPreCoord.close()
+
     if fpCoord:
         fpCoord.close()
 
@@ -242,6 +290,9 @@ def closeFiles():
 
     if fpChrMisMatch:
         fpChrMisMatch.close()
+
+    if fpMultipleCoords:
+        fpMultipleCoords.close()
 
     return 0
 
@@ -254,6 +305,7 @@ def closeFiles():
 # Throws: Nothing
 #
 def getCoordinates():
+    global fpPreCoord, egLookup
 
     #
     # Process each record returned from mapview
@@ -299,6 +351,50 @@ def getCoordinates():
 	mgiSymbol = mgiLookup[feature_id]['symbol']
 	if mgiSymbol != feature_name:
 	    fpNomenMisMatch.write(feature_id + '\t' + feature_name + '\t' + mgiSymbol + '\n')
+
+	fpPreCoord.write(feature_id + '\t')
+	fpPreCoord.write(chromosome + '\t')
+	fpPreCoord.write(chr_start + '\t')
+	fpPreCoord.write(chr_stop + '\t')
+	fpPreCoord.write(chr_orient + '\n')
+
+	if feature_id in egLookup:
+	    egLookup.remove(feature_id)
+        else:
+	    egLookup.append(feature_id)
+
+    fpPreCoord.close()
+
+    #
+    # open pre-coordinate file and check for duplicates
+    #
+
+    #
+    # Open the pre-coordinate file.
+    #
+    try:
+        fpPreCoord = open(precoordFile, 'r')
+    except:
+        print 'Cannot open file: ' + precoordFile
+        return 1
+
+    for line in fpPreCoord.readlines():
+
+	tokens = string.split(line[:-1], '\t')
+
+	feature_id = tokens[0]
+	chromosome = tokens[1]
+	chr_start = tokens[2]
+	chr_stop = tokens[3]
+	chr_orient = tokens[4]
+
+	if feature_id not in egLookup:
+	    fpMultipleCoords.write(feature_id + '\t' +  \
+				   chromosome + '\t' +  \
+				   chr_start + '\t' +  \
+				   chr_stop + '\t' +  \
+				   chr_orient + '\n')
+	    continue;
 
 	fpCoord.write(feature_id + '\t')
 	fpCoord.write(chromosome + '\t')

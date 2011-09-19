@@ -48,7 +48,8 @@ export MAPVIEWDIR MAPVIEWGZ MAPVIEW_FILE
 # discrepency reports
 MAPVIEWQC_NomenMisMatch=${RPTDIR}/NomenMisMatch.rpt
 MAPVIEWQC_ChrMisMatch=${RPTDIR}/ChrMisMatch.rpt
-export MAPVIEWQC_NomenMisMatch MAPVIEWQC_ChrMisMatch
+MAPVIEWQC_MultipleCoords=${RPTDIR}/MultipleCoords.rpt
+export MAPVIEWQC_NomenMisMatch MAPVIEWQC_ChrMisMatch MAPVIEWQC_MultipleCoords
 
 # coordload configuration values
 COORDLOADER_SH=${COORDLOAD}/bin/coordload.sh
@@ -62,10 +63,12 @@ export LOCATIONCACHE_SH
 
 # data files
 
+PRECOORD_FILE=prehuman_coord.txt
 COORD_FILE=human_coord.txt
+INPUT_PRECOORD_FILE=${COORDDATADIR}/${PRECOORD_FILE}
 INPUT_COORD_FILE=${COORDDATADIR}/${COORD_FILE}
-export COORD_FILE
-export INPUT_COORD_FILE
+export PRECOORD_FILE COORD_FILE
+export INPUT_PRECOORD_FILE INPUT_COORD_FILE
 
 # bcp manager
 
