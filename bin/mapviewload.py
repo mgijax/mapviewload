@@ -246,6 +246,51 @@ def openFiles():
         return 1
 
     #
+    # write headers for qc reports
+    #
+
+    fpNomenMisMatch.write('''
+Report of human genes with coordinates not loaded because
+nomenclature in the coordinates source file (seq_gene.md from
+NCBI, generated when the genome build was initially released) 
+has become out-of-sync with nomenclature in the Entrez Gene 
+load (regenerated on a regular basis.)
+    ''')
+
+
+    fpNomenMisMatch.write("\n\nHuman Gene Coordinates Load - Nomenclature Mismatches\n\n")
+    fpNomenMisMatch.write("column 1 : Gene ID from NCBI\n")
+    fpNomenMisMatch.write("column 2 : Symbol in Coordinates file\n")
+    fpNomenMisMatch.write("column 3 : Symbol in MGI's current data\n\n")
+
+    fpChrMisMatch.write('''
+Report of human genes with coordinates not loaded because
+chromosome in the coordinates source file (seq_gene.md from
+NCBI, generated when the genome build was initially released)
+has become out-of-sync with chromosome in the Entrez Gene
+load (regenerated on a regular basis.)
+    ''')
+
+    fpChrMisMatch.write("\n\n\tHuman Gene Coordinates Load - Chromosome Mismatches\n\n")
+    fpChrMisMatch.write("column 1 : Gene ID from NCBI\n")
+    fpChrMisMatch.write("column 2 : Chromosome in Coordinates file\n")
+    fpChrMisMatch.write("column 3 : Chromosome in MGI's current data\n\n")
+
+    fpMultipleCoords.write('''
+Report of human genes with coordinates not loaded because
+multiple sets of the coordinates appear in the source file 
+(seq_gene.md from NCBI, generated when the genome build was 
+initially released).
+    ''')
+
+    fpMultipleCoords.write("\n\n\tHuman Gene Coordinates Load - Multiple Coordinates\n\n")
+    fpMultipleCoords.write("column 1 : Gene ID from NCBI\n")
+    fpMultipleCoords.write("column 2 : Chromosome in Coordinates file\n")
+    fpMultipleCoords.write("column 3 : Start Coordinate in Coordinates file\n")
+    fpMultipleCoords.write("column 4 : End Coordinate in Coordinates file\n")
+    fpMultipleCoords.write("column 5 : Strand in the Coordinates file\n\n")
+
+    #
     # Select all human markers that contain EntrezGene ids
     # and are statused as 'official'
     #
