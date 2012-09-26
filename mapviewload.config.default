@@ -20,7 +20,7 @@ fi
 
 # directories
 
-FILEDIR=/data/loads/mapview/mapviewload
+FILEDIR=${DATALOADSOUTPUT}/mapview/mapviewload
 INPUTDIR=${FILEDIR}/input
 LOGDIR=${FILEDIR}/logs
 RPTDIR=${FILEDIR}/reports
