@@ -47,11 +47,11 @@ fi
 
 LOAD_CACHE=$1
 
-CONFIG_LOAD=`pwd`/mapviewload.config
+#
+# verify & source the load configuration file
+#
 
-#
-# verify & source the miRBASE load configuration file
-#
+CONFIG_LOAD=`pwd`/mapviewload.config
 
 if [ ! -r ${CONFIG_LOAD} ]
 then
@@ -60,6 +60,18 @@ then
 fi
 
 . ${CONFIG_LOAD}
+
+#
+# verify the coordinate load configuration file
+#
+
+CONFIG_COORD=`pwd`/coordload.config
+
+if [ ! -r ${CONFIG_COORD} ]
+then
+    echo "Cannot read configuration file: ${CONFIG_COORD}"
+    exit 1
+fi
 
 #
 #  Source the DLA library functions.
@@ -111,18 +123,47 @@ fi
 preload ${OUTPUTDIR}
 
 #
+# There should be a "lastrun" file in the input directory that was created
+# the last time the load was run for this input file. If this file exists
+# and is more recent than the input file, the load does not need to be run.
+#
+LASTRUN_FILE=${INPUTDIR}/lastrun
+if [ -f ${LASTRUN_FILE} ]
+then
+    if /usr/local/bin/test ${LASTRUN_FILE} -nt ${MAPVIEWDIR}/${MAPVIEWGZ}
+    then
+
+        echo "Input file has not been updated - skipping load" | tee -a ${LOG_PROC}
+        # set STAT for shutdown
+        STAT=0
+        echo 'shutting down'
+        shutDown
+        exit 0
+    fi
+fi
+
+#
 # rm files and dirs from OUTPUTDIR
 #
 
-cleanDir ${OUTPUTDIR} 
+cleanDir ${OUTPUTDIR}
 
-# remove old files
+# remove old unzipped file
 rm -rf ${MAPFILE_NAME}
 
 # copy new file from /data/downloads and unzip
 cd ${INPUTDIR}
-cp ${MAPVIEWDIR}/${MAPVIEWGZ} ${INPUTDIR}
+cp -p ${MAPVIEWDIR}/${MAPVIEWGZ} ${INPUTDIR}
+
+# process the input
 /usr/local/bin/gunzip -f ${MAPVIEWGZ} >> ${LOG_DIAG}
+
+# get the build number from the input file
+# we need to pass this to the java system properties when calling the coordload
+build=`cat seq_gene.md | cut -f 13 | sort | uniq | cut -d"." -f1 | grep "GRCh" |
+ sort | uniq`
+
+echo "build: ${build}"
 
 #
 # process the input file
@@ -136,19 +177,28 @@ checkStatus ${STAT} "${MAPVIEWLOAD}/bin/mapviewload.py"
 #
 # run the coordinate load
 #
+. ${CONFIG_COORD}
 echo "\n`date`" >> ${LOG_DIAG}
-echo "Running coordinate load" | tee -a ${LOG_DIAG}
-${COORDLOADER_SH} ${CONFIG_LOAD} ${COORDLOADCONFIG}  >> ${LOG_DIAG}
-STAT=$?
-checkStatus ${STAT} "${COORDLOADER_SH}"
+echo "Running human coordinate load" | tee -a ${LOG_DIAG} ${LOG_PROC}
+${JAVA} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} \
+    -DCONFIG=${CONFIG_MASTER},${CONFIG_COORD} \
+    -DCOORD_VERSION="${build}" \
+    -DJOBKEY=${JOBKEY} ${DLA_START}
 
-if [ ${LOAD_CACHE} = "true" ]
+STAT=$?
+checkStatus ${STAT} "human coordinate java load"
+
+#
+# now source the mapview config to close logs
+#
+. ${CONFIG_LOAD}
+
+#
+# Touch the "lastrun" file to note when the load was run.
+#
+if [ ${STAT} = 0 ]
 then
-    echo "\n`date`" >> ${LOG_DIAG}
-    echo "Running marker location cacheload"| tee -a ${LOG_DIAG}
-    ${LOCATIONCACHE_SH} >> ${LOG_DIAG}
-    STAT=$?
-    checkStatus ${STAT} "${LOCATIONCACHE_SH}"
+    touch ${LASTRUN_FILE}
 fi
 
 #

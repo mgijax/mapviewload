@@ -40,7 +40,7 @@ JOBSTREAM=mapviewload
 export JOBSTREAM
 
 # input/output files
-MAPVIEWDIR=/data/downloads/mapview_human
+MAPVIEWDIR=${DATADOWNLOADS}/mapview_human
 MAPVIEWGZ=seq_gene.md.gz
 MAPVIEW_FILE=${INPUTDIR}/seq_gene.md
 export MAPVIEWDIR MAPVIEWGZ MAPVIEW_FILE
