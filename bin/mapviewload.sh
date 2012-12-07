@@ -194,6 +194,18 @@ checkStatus ${STAT} "human coordinate java load"
 . ${CONFIG_LOAD}
 
 #
+# Load the marker location cache?
+#
+if [ ${LOAD_CACHE} = "true" ]
+then
+    echo "\n`date`" >> ${LOG_DIAG}
+    echo "Running marker location cacheload"| tee -a ${LOG_DIAG}
+    ${LOCATIONCACHE_SH} >> ${LOG_DIAG}
+    STAT=$?
+    checkStatus ${STAT} "${LOCATIONCACHE_SH}"
+fi
+
+#
 # Touch the "lastrun" file to note when the load was run.
 #
 if [ ${STAT} = 0 ]
