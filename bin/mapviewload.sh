@@ -160,7 +160,7 @@ cp -p ${MAPVIEWDIR}/${MAPVIEWGZ} ${INPUTDIR}
 
 # get the build number from the input file
 # we need to pass this to the java system properties when calling the coordload
-build=`cat seq_gene.md | cut -f 13 | sort | uniq | cut -d"." -f1 | grep "GRCh" |
+build=`cat seq_gene.md | cut -f 13 | sort | uniq | cut -d"-" -f1 | grep "GRCh" |
  sort | uniq`
 
 echo "build: ${build}"
