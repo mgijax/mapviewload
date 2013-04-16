@@ -376,10 +376,10 @@ def getCoordinates():
 	if string.find(feature_type, 'GENE') < 0:
 	    continue
 
-	# skip if group_label does not contain 'GRCh37.p2-Primary Assembly'
-	if string.find(group_label, 'GRCh37.p2-Primary Assembly') < 0:
+	# TR6519 - let's be build/patch neutral, skip if not 'GRCh*Primary Assembly'
+	if not(string.find(group_label, 'GRCh') >= 0 and \
+		string.find(group_label, 'Primary Assembly') >= 0):
 	    continue
-
 	# skip if feature_id (EntrezGene id) does not exist in MGI 
 	feature_id = string.replace(feature_id, 'GeneID:', '')
 	if not mgiLookup.has_key(feature_id):

@@ -1,8 +1,26 @@
+TAG: mapviewload-5-1-3-1
+DATE: 04/16/2013
+STAFF: sc
+CHANGES: Merge N2MO tr6519 branch to trunk
+
+TAG: mapviewload-tr6519-2
+TAG: mapviewload-tr6519-1
+DATE: 12/07/2012
+STAFF: sc
+CHANGES: N2MO
+1) mapviewload.sh and mapviewload.py - make build neutral, get build number
+   for coordinate from column 13 in input.
+   Update to call JAVA coordinate load directory rather than coordload wrapper
+   so we may pass COORD_VERSION to system properties
+2) run only when new file available - uses lastrun file
+3) coordload.config - remove MAP_VERSION. Send coordload output to mapviewload output dirs
+4) Install - remove creation of coordload subdirectories
+
 TAG: mapviewload-tr6519-BP
-DATE: 10/19/2012
-STAFF: dbm
-CHANGES:
-1)
+DATE: 12/05/2012
+STAFF: sc
+CHANGES: N2MO
+
 TAG: mapviewload-5-1-0-1
 DATE: 10/19/2012
 STAFF: dbm
