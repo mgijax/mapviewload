@@ -168,7 +168,8 @@ echo "build: ${build}"
 #
 # process the input file
 #
-echo "\n`date`" >> ${LOG_DIAG} 
+echo "" >> ${LOG_DIAG} 
+echo "`date`" >> ${LOG_DIAG} 
 echo "Processing input file ${MAPFILE_NAME}" | tee -a ${LOG_DIAG}
 ${MAPVIEWLOAD}/bin/mapviewload.py | tee -a ${LOG_DIAG} ${LOG_PROC}
 STAT=$?
@@ -178,7 +179,8 @@ checkStatus ${STAT} "${MAPVIEWLOAD}/bin/mapviewload.py"
 # run the coordinate load
 #
 . ${CONFIG_COORD}
-echo "\n`date`" >> ${LOG_DIAG}
+echo "" >> ${LOG_DIAG}
+echo "`date`" >> ${LOG_DIAG}
 echo "Running human coordinate load" | tee -a ${LOG_DIAG} ${LOG_PROC}
 ${JAVA} ${JAVARUNTIMEOPTS} -classpath ${CLASSPATH} \
     -DCONFIG=${CONFIG_MASTER},${CONFIG_COORD} \
@@ -198,7 +200,8 @@ checkStatus ${STAT} "human coordinate java load"
 #
 if [ ${LOAD_CACHE} = "true" ]
 then
-    echo "\n`date`" >> ${LOG_DIAG}
+    echo "" >> ${LOG_DIAG}
+    echo "`date`" >> ${LOG_DIAG}
     echo "Running marker location cacheload"| tee -a ${LOG_DIAG}
     ${LOCATIONCACHE_SH} >> ${LOG_DIAG}
     STAT=$?
