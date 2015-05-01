@@ -130,7 +130,7 @@ preload ${OUTPUTDIR}
 LASTRUN_FILE=${INPUTDIR}/lastrun
 if [ -f ${LASTRUN_FILE} ]
 then
-    if test ${LASTRUN_FILE} -nt ${MAPVIEWDIR}/${MAPVIEWGZ}
+    if /usr/local/bin/test ${LASTRUN_FILE} -nt ${MAPVIEWDIR}/${MAPVIEWGZ}
     then
 
         echo "Input file has not been updated - skipping load" | tee -a ${LOG_PROC}
@@ -156,7 +156,7 @@ cd ${INPUTDIR}
 cp -p ${MAPVIEWDIR}/${MAPVIEWGZ} ${INPUTDIR}
 
 # process the input
-gunzip -f ${MAPVIEWGZ} >> ${LOG_DIAG}
+/usr/local/bin/gunzip -f ${MAPVIEWGZ} >> ${LOG_DIAG}
 
 # get the build number from the input file
 # we need to pass this to the java system properties when calling the coordload
