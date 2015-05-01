@@ -130,7 +130,7 @@ preload ${OUTPUTDIR}
 LASTRUN_FILE=${INPUTDIR}/lastrun
 if [ -f ${LASTRUN_FILE} ]
 then
-    if /usr/local/bin/test ${LASTRUN_FILE} -nt ${MAPVIEWDIR}/${MAPVIEWGZ}
+    if test ${LASTRUN_FILE} -nt ${MAPVIEWDIR}/${MAPVIEWGZ}
     then
 
         echo "Input file has not been updated - skipping load" | tee -a ${LOG_PROC}
