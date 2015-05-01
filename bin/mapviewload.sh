@@ -156,7 +156,7 @@ cd ${INPUTDIR}
 cp -p ${MAPVIEWDIR}/${MAPVIEWGZ} ${INPUTDIR}
 
 # process the input
-/usr/local/bin/gunzip -f ${MAPVIEWGZ} >> ${LOG_DIAG}
+gunzip -f ${MAPVIEWGZ} >> ${LOG_DIAG}
 
 # get the build number from the input file
 # we need to pass this to the java system properties when calling the coordload
