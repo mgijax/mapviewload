@@ -1,3 +1,10 @@
+TAG: mapviewload-6-0-4-1
+DATE: 04/28/2016
+STAFF: lec 
+CHANGES: TR12069/postgres cleanup
+1) convert to Git 
+2) add "db.setAutoTranslate"
+
 TAG: mapviewload-6-0-0-1
 DATE: 07/24/2015
 STAFF: lec
